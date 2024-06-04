@@ -5,6 +5,7 @@
 @import "./variations-filter/styles.scss";
 @import "./table-row-skeleton/styles.scss";
 @import "./add-image-menu-item/style.scss";
+@import "./variation-pricing-form/styles.scss";
 
 .woocommerce-product-variations {
 	display: flex;
@@ -202,5 +203,11 @@
 	&__image {
 		width: 32px;
 		max-height: 32px;
+	}
+
+	&__pricing-actions-menu {
+		.components-popover__content {
+			padding: 0;
+		}
 	}
 }
