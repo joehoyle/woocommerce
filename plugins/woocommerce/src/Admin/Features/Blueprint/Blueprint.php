@@ -3,7 +3,6 @@
 namespace Automattic\WooCommerce\Admin\Features\Blueprint;
 
 class Blueprint {
-	private $schemaPath;
 	public function __construct( $schema ) {
 		$this->schema = $schema;
 	}
