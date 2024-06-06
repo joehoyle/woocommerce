@@ -2,12 +2,8 @@
 
 namespace Automattic\WooCommerce\Admin\Features\Blueprint;
 
-class Feature {
+class CLI {
 	public function __construct() {
-		add_action('cli_init', array($this, 'add_cli'));
-	}
 
-	public function add_cli() {
-		
 	}
 }
