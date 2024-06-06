@@ -9,7 +9,7 @@ class PluginsStorage {
 	 * @var PluginDownloader[]
 	 */
 	protected array $downloaders = array();
-	public function add_locator(PluginDownloader $downloader) {
+	public function add_downloader(PluginDownloader $downloader) {
 		$supported_resource = $downloader->get_supported_resource();
 		if (!isset($this->downloaders[$supported_resource])) {
 			$this->downloaders[$supported_resource] = array();

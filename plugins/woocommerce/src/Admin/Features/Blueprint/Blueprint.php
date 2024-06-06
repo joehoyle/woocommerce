@@ -8,8 +8,17 @@ use Automattic\WooCommerce\Admin\Features\Blueprint\StepProcessors\InstallPlugin
 
 class Blueprint {
 	private Schema $schema;
-	public function __construct( Schema $schema ) {
+	private StepProcessorFactory $step_factory;
+	public function __construct( Schema $schema, StepProcessorFactory $step_factory = null) {
 		$this->schema = $schema;
+		if (!$schema->validate()) {
+			// throw exception here;
+		}
+		if ($step_factory === null) {
+			$step_factory = new StepProcessorFactory($schema);
+		}
+
+		$this->step_factory = $step_factory;
 	}
 
 	public static function create_from_json($json_path) {
@@ -21,59 +30,27 @@ class Blueprint {
 	}
 
 	/**
-	 * @return StepProcessorResult
+	 * @return StepProcessorResult[]
 	 */
 	public function process() {
-		if ( ! $this->validate() ) {
-			// @todo Implement JSON Schema validation here.
-			return false;
-		}
+		$results = array();
+		$result = StepProcessorResult::success(self::class);
+		$results[] = $result;
 
-		$results = StepProcessorResult::success(self::class);
 		foreach ( $this->schema->get_steps() as $stepSchema ) {
-			$stepProcessor = $this->create_step_processor($stepSchema->step);
+			$stepProcessor = $this->step_factory->create_from_name($stepSchema->step);
 			// test code
 			if (! $stepProcessor instanceof InstallPlugins) {
 				continue;
 			}
 
-			if ( ! $stepProcessor instanceof StepProcessor) {
-				$results->add_error("Unable to create step processor for {$stepSchema->step}");
+			if ( ! $stepProcessor instanceof StepProcessor ) {
+				$result->add_error("Unable to create step processor for {$stepSchema->step}");
 			}
 
-			$results->merge( $stepProcessor->process( $stepSchema ) );
-
+			$result[] = $stepProcessor->process( $stepSchema );
 		}
 
 		return $results;
-	}
-
-	private function validate() {
-		return true;
-	}
-
-	private function create_step_processor( $step_name ) {
-		$stepProcessor = __NAMESPACE__ . '\\StepProcessors\\' . Util::snake_to_camel($step_name);
-		if (!class_exists($stepProcessor)) {
-			// throw error
-			return false;
-		}
-
-		switch ($step_name) {
-			case 'installPlugins':
-				return $this->create_install_plugins_processor();
-			default:
-				return new $stepProcessor;
-		}
-	}
-
-	private function create_install_plugins_processor() {
-		$storage = new PluginsStorage();
-		if ($this->schema instanceof ZipSchema) {
-			$storage->add_downloader( new LocalPluginDownloader($this->schema->get_unzip_path()) );
-		}
-
-		$storage->add_locator(new OrgPluginDownloader());
-		return new InstallPlugins($storage);
 	}
 }

@@ -3,7 +3,7 @@
 namespace Automattic\WooCommerce\Admin\Features\Blueprint\PluginLocators;
 
 interface PluginDownloader {
-	public function get_supported_resource();
+	public function get_supported_resource(): string;
 
 	/**
 	 * @param $slug

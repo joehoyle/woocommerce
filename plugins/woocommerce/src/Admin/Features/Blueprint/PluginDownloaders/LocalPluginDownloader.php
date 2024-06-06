@@ -25,7 +25,7 @@ class LocalPluginDownloader implements PluginDownloader {
 		return false;
 	}
 
-	public function get_supported_resource() {
+	public function get_supported_resource(): string {
 		return 'self/plugins';
 	}
 }

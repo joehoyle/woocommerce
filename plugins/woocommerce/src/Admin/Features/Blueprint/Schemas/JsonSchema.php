@@ -14,4 +14,9 @@ class JsonSchema extends Schema {
 //				), 400);
 //			}
 	}
+
+	public function validate()
+	{
+	    return true;
+	}
 }

@@ -40,7 +40,7 @@ class ZipSchema extends Schema {
 		\WP_Filesystem();
 	}
 
-	private function validate_unzipped_files() {
+	public function validate() {
 		return true;
 	}
 }
