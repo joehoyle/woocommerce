@@ -1,11 +1,8 @@
 <?php
 
-
-
 namespace Automattic\WooCommerce\Admin\API;
 
-use Automattic\WooCommerce\Admin\Features\Blueprint\Blueprint as BlueprintService;
-use Automattic\WooCommerce\Admin\Features\QuickConfig\QuickConfigService;
+use Automattic\WooCommerce\Admin\Features\Blueprint\SchemaProcessor;
 
 class Blueprint {
 	/**
@@ -46,15 +43,7 @@ class Blueprint {
 	public function process() {
 		if ( !empty($_FILES['file']) && $_FILES['file']['error'] === UPLOAD_ERR_OK ) {
 			$uploaded_file = $_FILES['file']['tmp_name'];
-			$is_zip = $_FILES['file']['type'] === 'application/zip';
-
-			// @todo check for alloweed types -- json or zip only.
-			if ($is_zip) {
-				$blueprint = BlueprintService::crate_from_zip($uploaded_file);
-			} else {
-				$blueprint = BluePrintService::create_from_json($uploaded_file);
-			}
-
+			$blueprint = SchemaProcessor::crate_from_file($uploaded_file);
 			$paul = $blueprint->process();
 
 			return new \WP_HTTP_Response( array(

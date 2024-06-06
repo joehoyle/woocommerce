@@ -5,7 +5,7 @@
 
 namespace Automattic\WooCommerce\Internal\Admin;
 
-use Automattic\WooCommerce\Admin\Features\Blueprint\Blueprint;
+use Automattic\WooCommerce\Admin\Features\Blueprint\SchemaProcessor;
 use Automattic\WooCommerce\Admin\Features\Features;
 use Automattic\WooCommerce\Admin\PageController;
 use Automattic\WooCommerce\Admin\PluginsHelper;
@@ -600,7 +600,7 @@ class Loader {
 	public static function maybe_configure_with_blueprint() {
 		$path = constant( 'WOOCOMMERCE_BLUEPRINT_PATH' );
 		if ( true === constant( 'USE_WOOCOMMERCE_BLUEPRINT' ) && file_exists( $path ) ) {
-			$blueprint = new Blueprint( $path );
+			$blueprint = new SchemaProcessor( $path );
 			$blueprint->process();
 		}
 	}

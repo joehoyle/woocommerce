@@ -7,6 +7,6 @@ use Automattic\WooCommerce\Admin\Features\Blueprint\StepProcessorResult;
 
 class ConfigureSettingsShipping implements StepProcessor {
 	public function process( $schema ): StepProcessorResult {
-		return StepProcessorResult::success();
+		return StepProcessorResult::success(self::class);
 	}
 }

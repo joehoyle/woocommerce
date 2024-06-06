@@ -2,12 +2,11 @@
 
 namespace Automattic\WooCommerce\Admin\Features\Blueprint;
 
-class Feature {
+class Blueprint {
 	public function __construct() {
-		add_action('cli_init', array($this, 'add_cli'));
-	}
-
-	public function add_cli() {
-		
+		add_filter('woocommerce_admin_rest_controllers', function(array $controllers) {
+			$controllers[] = 'Automattic\WooCommerce\Admin\API\Blueprint';
+			return $controllers;
+		});
 	}
 }

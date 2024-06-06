@@ -6,7 +6,7 @@ use Automattic\WooCommerce\Admin\Features\Blueprint\PluginLocators\LocalPluginDo
 use Automattic\WooCommerce\Admin\Features\Blueprint\PluginLocators\OrgPluginDownloader;
 use Automattic\WooCommerce\Admin\Features\Blueprint\StepProcessors\InstallPlugins;
 
-class Blueprint {
+class SchemaProcessor {
 	private Schema $schema;
 	private StepProcessorFactory $step_factory;
 	public function __construct( Schema $schema, StepProcessorFactory $step_factory = null) {
@@ -16,6 +16,14 @@ class Blueprint {
 		}
 
 		$this->step_factory = $step_factory;
+	}
+
+	public static function crate_from_file($file) {
+		// @todo check for mime type
+		$path_info = pathinfo($file);
+		$is_zip = $path_info['extension'] === 'zip';
+
+		return $is_zip ? SchemaProcessor::crate_from_zip($file) : SchemaProcessor::create_from_json($file);
 	}
 
 	public static function create_from_json($json_path) {
