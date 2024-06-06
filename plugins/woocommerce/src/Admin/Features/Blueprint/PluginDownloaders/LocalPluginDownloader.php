@@ -2,13 +2,20 @@
 
 namespace Automattic\WooCommerce\Admin\Features\Blueprint\PluginLocators;
 
-class LocalPluginLocator implements PluginLocator {
+class LocalPluginDownloader implements PluginDownloader {
 	private array $paths = [];
 	public function __construct($path) {
 		$this->paths[] = $path;
 	}
 
-	public function locate( $slug ) {
+	/**
+	 * Local plugins are already included (downloaded) in the zip file.
+	 *
+	 * @param $slug
+	 *
+	 * @return false|string
+	 */
+	public function download( $slug ) {
 		foreach ($this->paths as $path) {
 			$full_path = $path.'/plugins/'.$slug.'.zip';
 			if (is_file($full_path)) {

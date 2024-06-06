@@ -13,6 +13,6 @@ class SetSiteOptionsProcessor implements StepProcessor {
 			update_option( $key, $value );
 		}
 
-		return StepProcessorResult::success();
+		return StepProcessorResult::success(self::class);
 	}
 }

@@ -2,28 +2,37 @@
 
 namespace Automattic\WooCommerce\Admin\Features\Blueprint;
 
-use Automattic\WooCommerce\Admin\Features\Blueprint\PluginLocators\PluginLocator;
+use Automattic\WooCommerce\Admin\Features\Blueprint\PluginLocators\PluginDownloader;
 
 class PluginsStorage {
 	/**
-	 * @var PluginLocator[]
+	 * @var PluginDownloader[]
 	 */
-	protected array $locators = array();
-	public function add_locator(PluginLocator $locator) {
-		$supported_resource = $locator->get_supported_resource();
-		if (!isset($this->locators[$supported_resource])) {
-			$this->locators[$supported_resource] = array();
+	protected array $downloaders = array();
+	public function add_locator(PluginDownloader $downloader) {
+		$supported_resource = $downloader->get_supported_resource();
+		if (!isset($this->downloaders[$supported_resource])) {
+			$this->downloaders[$supported_resource] = array();
 		}
-		$this->locators[$supported_resource][] = $locator;
+		$this->downloaders[$supported_resource][] = $downloader;
 	}
 
-	public function locate($slug, $resource) {
-		if (!isset($this->locators[$resource])) {
+	public function is_supported_resource($resource) {
+	    foreach ($this->downloaders as $downloader) {
+			if ($downloader->get_supported_resource() === $resource) {
+				return true;
+			}
+	    }
+		return false;
+	}
+
+	public function download($slug, $resource) {
+		if (!isset($this->downloaders[$resource])) {
 			return false;
 		}
-		$locators = $this->locators[$resource];
-	    foreach ($locators as $locator) {
-			if ($found = $locator->locate($slug)) {
+		$downloaders = $this->downloaders[$resource];
+	    foreach ($downloaders as $downloader) {
+			if ($found = $downloader->download($slug)) {
 				return $found;
 			}
 	    }

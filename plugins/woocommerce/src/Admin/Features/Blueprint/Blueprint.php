@@ -2,8 +2,8 @@
 
 namespace Automattic\WooCommerce\Admin\Features\Blueprint;
 
-use Automattic\WooCommerce\Admin\Features\Blueprint\PluginLocators\LocalPluginLocator;
-use Automattic\WooCommerce\Admin\Features\Blueprint\PluginLocators\OrgPluginLocator;
+use Automattic\WooCommerce\Admin\Features\Blueprint\PluginLocators\LocalPluginDownloader;
+use Automattic\WooCommerce\Admin\Features\Blueprint\PluginLocators\OrgPluginDownloader;
 use Automattic\WooCommerce\Admin\Features\Blueprint\StepProcessors\InstallPlugins;
 
 class Blueprint {
@@ -21,7 +21,7 @@ class Blueprint {
 	}
 
 	/**
-	 * @return StepProcessorResult[]
+	 * @return StepProcessorResult
 	 */
 	public function process() {
 		if ( ! $this->validate() ) {
@@ -29,20 +29,20 @@ class Blueprint {
 			return false;
 		}
 
-		/**
-		 * @var StepProcessorResult[]
-		 */
-		$results = array();
+		$results = StepProcessorResult::success(self::class);
 		foreach ( $this->schema->get_steps() as $stepSchema ) {
 			$stepProcessor = $this->create_step_processor($stepSchema->step);
+			// test code
 			if (! $stepProcessor instanceof InstallPlugins) {
 				continue;
 			}
-			if ($stepProcessor) {
-				$results[] = $stepProcessor->process( $stepSchema );
-			} else {
 
+			if ( ! $stepProcessor instanceof StepProcessor) {
+				$results->add_error("Unable to create step processor for {$stepSchema->step}");
 			}
+
+			$results->merge( $stepProcessor->process( $stepSchema ) );
+
 		}
 
 		return $results;
@@ -70,10 +70,10 @@ class Blueprint {
 	private function create_install_plugins_processor() {
 		$storage = new PluginsStorage();
 		if ($this->schema instanceof ZipSchema) {
-			$storage->add_locator( new LocalPluginLocator($this->schema->get_unzip_path()) );
+			$storage->add_downloader( new LocalPluginDownloader($this->schema->get_unzip_path()) );
 		}
 
-		$storage->add_locator(new OrgPluginLocator());
+		$storage->add_locator(new OrgPluginDownloader());
 		return new InstallPlugins($storage);
 	}
 }

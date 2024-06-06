@@ -19,6 +19,6 @@ class EnablePaymentMethods implements StepProcessor {
 			do_action( 'woocommerce_update_options' );
 		}
 
-		return StepProcessorResult::success();
+		return StepProcessorResult::success(self::class);
 	}
 }

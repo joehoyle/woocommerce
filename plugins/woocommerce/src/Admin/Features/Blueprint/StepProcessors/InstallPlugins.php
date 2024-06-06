@@ -9,22 +9,28 @@ use Plugin_Upgrader;
 
 class InstallPlugins implements StepProcessor {
 	private PluginsStorage $storage;
+	private array $installed_plugin_paths = array();
+
 	public function __construct(PluginsStorage $storage) {
 		$this->storage = $storage;
 	}
 	public function process($schema): StepProcessorResult {
-		$result = StepProcessorResult::success();
+		$result = StepProcessorResult::success(self::class);
 		foreach ($schema->plugins as $plugin) {
-			switch ($plugin->resource) {
-				case "wordpress.org/plugins":
-					$this->install_from_org($plugin);
-					break;
-				case "self/plugins":
-					$this->install_from_self($plugin);
-					break;
-				default:
-					$result->add_error("Invalid resource type for {$plugin->slug}");
-					break;
+			if ($this->storage->is_supported_resource($plugin->type) === false ) {
+				$result->add_error("Invalid resource type for {$plugin->slug}");
+				continue;
+			}
+
+			$downloaded_path = $this->storage->download($plugin->slug, $plugin->type);
+			if (! $downloaded_path ) {
+				$result->add_error("Unable to download {$plugin->slug} with {$plugin->type} resource type.");
+				continue;
+			}
+
+			$this->install($downloaded_path);
+			if ($plugin->activate === true) {
+				$this->activate($plugin->slug);
 			}
 
 		}
@@ -32,21 +38,35 @@ class InstallPlugins implements StepProcessor {
 		return $result;
 	}
 
-	private function install_from_org( $plugin ) {
-		$slug = $this->storage->locate($plugin->slug, 'wordpress.org/plugins');
-//		PluginsHelper::install_plugins( array( $slug ) );
-//		if ($plugin->activate === true) {
-//			PluginsHelper::activate_plugins( array( $slug ) );
-//		}
-	}
-	private function install_from_self( $plugin ) {
+	protected function install( $local_plugin_path ) {
+		if (class_exists('Plugin_Upgrader')) {
+			include_once ABSPATH . '/wp-admin/includes/class-wp-upgrader.php';
+			include_once ABSPATH . '/wp-admin/includes/class-plugin-upgrader.php';
+		}
 
-		include_once ABSPATH . '/wp-admin/includes/class-wp-upgrader.php';
-		include_once ABSPATH . '/wp-admin/includes/class-plugin-upgrader.php';
-
-		$path = $this->storage->locate($plugin->slug, 'self/plugins');
 		$upgrader = new \Plugin_Upgrader( new \Automatic_Upgrader_Skin() );
-		$result   = $upgrader->install( $path );
+		return $upgrader->install( $local_plugin_path );
+	}
 
+	protected function activate( $slug ) {
+		if (!empty($this->installed_plugin_paths)) {
+			$this->installed_plugin_paths = $this->get_installed_plugins_paths();
+		}
+
+		$path = $this->installed_plugin_paths[ $slug ] ?? false;
+		return activate_plugin($path);
+	}
+
+	protected function get_installed_plugins_paths() {
+		$plugins           = get_plugins();
+		$installed_plugins = array();
+
+		foreach ( $plugins as $path => $plugin ) {
+			$path_parts                 = explode( '/', $path );
+			$slug                       = $path_parts[0];
+			$installed_plugins[ $slug ] = $path;
+		}
+
+		return $installed_plugins;
 	}
 }

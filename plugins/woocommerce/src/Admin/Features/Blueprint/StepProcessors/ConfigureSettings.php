@@ -25,7 +25,7 @@ class ConfigureSettings implements StepProcessor {
 			}
 		}
 
-		return StepProcessorResult::success();
+		return StepProcessorResult::success(self::class);
 	}
 
 }

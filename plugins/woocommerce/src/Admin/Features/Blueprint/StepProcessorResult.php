@@ -24,13 +24,16 @@ class StepProcessorResult {
 	 */
 	private bool $success;
 
+	private string $step_name;
+
 	/**
 	 * Construct.
 	 *
 	 * @param bool $success Indicate whether the process was success or not.
 	 */
-	public function __construct( bool $success ) {
+	public function __construct( bool $success, string $step_name ) {
 		$this->success = $success;
+		$this->step_name = $step_name;
 	}
 
 	/**
@@ -38,8 +41,8 @@ class StepProcessorResult {
 	 *
 	 * @return StepProcessorResult
 	 */
-	public static function success(): self {
-		return ( new self( true ) );
+	public static function success(string $stp_name): self {
+		return ( new self( true, $stp_name ) );
 	}
 
 
@@ -101,6 +104,12 @@ class StepProcessorResult {
 				return $type === $message['type'];
 			}
 		);
+	}
+
+	public function merge(StepProcessorResult $result) {
+	    foreach($result->get_messages() as $message) {
+			$this->add_message($message['message'], $message['type']);
+	    }
 	}
 
 	/**
