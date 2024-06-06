@@ -1,0 +1,24 @@
+<?php
+
+namespace Automattic\WooCommerce\Admin\Features\Blueprint\PluginLocators;
+
+class LocalPluginLocator implements PluginLocator {
+	private array $paths = [];
+	public function __construct($path) {
+		$this->paths[] = $path;
+	}
+
+	public function locate( $slug ) {
+		foreach ($this->paths as $path) {
+			$full_path = $path.'/plugins/'.$slug.'.zip';
+			if (is_file($full_path)) {
+				return $full_path;
+			}
+		}
+		return false;
+	}
+
+	public function get_supported_resource() {
+		return 'self/plugins';
+	}
+}

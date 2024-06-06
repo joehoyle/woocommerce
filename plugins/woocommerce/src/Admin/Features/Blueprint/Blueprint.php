@@ -2,31 +2,22 @@
 
 namespace Automattic\WooCommerce\Admin\Features\Blueprint;
 
-class Blueprint {
-	private $schema_path;
-	public function __construct( $schema_path ) {
-		$this->schema_path = $schema_path;
-	}
+use Automattic\WooCommerce\Admin\Features\Blueprint\PluginLocators\LocalPluginLocator;
+use Automattic\WooCommerce\Admin\Features\Blueprint\PluginLocators\OrgPluginLocator;
+use Automattic\WooCommerce\Admin\Features\Blueprint\StepProcessors\InstallPlugins;
 
-	protected function get_schema_content() {
-		return json_decode(file_get_contents($this->schema_path));
+class Blueprint {
+	private Schema $schema;
+	public function __construct( Schema $schema ) {
+		$this->schema = $schema;
 	}
 
 	public static function create_from_json($json_path) {
-		return new self($json_path);
+		return new self(new JsonSchema($json_path));
 	}
 
 	public static function crate_from_zip($zip_path) {
-		require_once(ABSPATH . 'wp-admin/includes/file.php');
-		\WP_Filesystem();
-		$unzip_path = wp_upload_dir()['path'];
-		$unzip = \unzip_file($zip_path, $unzip_path);
-
-		if (!$unzip) {
-			throw new \Exception("Unable to unzip the file to {$unzip_path}. Please check directory permission.");
-		}
-
-		return new self($unzip_path.'/woo-blueprint.json');
+		return new self(new ZipSchema($zip_path));
 	}
 
 	/**
@@ -38,20 +29,19 @@ class Blueprint {
 			return false;
 		}
 
-		$schema = $this->get_schema_content();
 		/**
 		 * @var StepProcessorResult[]
 		 */
 		$results = array();
-		foreach ( $schema->steps as $stepSchema ) {
-			$stepProcessor = __NAMESPACE__ . '\\StepProcessors\\' . ucfirst( $stepSchema->step );
-			if ( class_exists( $stepProcessor ) ) {
-				/**
-				 * @var $stepProcessor StepProcessor
-				 * @todo Use container.
-				 */
-				$stepProcessor = new $stepProcessor();
-				$results[] = $stepProcessor->process($stepSchema);
+		foreach ( $this->schema->get_steps() as $stepSchema ) {
+			$stepProcessor = $this->create_step_processor($stepSchema->step);
+			if (! $stepProcessor instanceof InstallPlugins) {
+				continue;
+			}
+			if ($stepProcessor) {
+				$results[] = $stepProcessor->process( $stepSchema );
+			} else {
+
 			}
 		}
 
@@ -60,5 +50,30 @@ class Blueprint {
 
 	private function validate() {
 		return true;
+	}
+
+	private function create_step_processor( $step_name ) {
+		$stepProcessor = __NAMESPACE__ . '\\StepProcessors\\' . Util::snake_to_camel($step_name);
+		if (!class_exists($stepProcessor)) {
+			// throw error
+			return false;
+		}
+
+		switch ($step_name) {
+			case 'installPlugins':
+				return $this->create_install_plugins_processor();
+			default:
+				return new $stepProcessor;
+		}
+	}
+
+	private function create_install_plugins_processor() {
+		$storage = new PluginsStorage();
+		if ($this->schema instanceof ZipSchema) {
+			$storage->add_locator( new LocalPluginLocator($this->schema->get_unzip_path()) );
+		}
+
+		$storage->add_locator(new OrgPluginLocator());
+		return new InstallPlugins($storage);
 	}
 }
