@@ -3,16 +3,22 @@
 namespace Automattic\WooCommerce\Admin\Features\Blueprint\PluginLocators;
 
 class OrgPluginDownloader implements PluginDownloader {
-	public function download( $slug ) {
+	public function download( $slug ): string {
 		return $this->download_url($this->get_download_link($slug));
 	}
 
 	protected function download_url($url) {
-		return download_url($url);
+		if ( ! function_exists( 'download_url' ) ) {
+			include ABSPATH . '/wp-admin/includes/file.php';
+		}
+		return \download_url($url);
 	}
 
 	protected function get_download_link($slug) {
-		$info = plugins_api(
+		if ( ! function_exists( 'plugins_api' ) ) {
+			include_once ABSPATH . '/wp-admin/includes/plugin-install.php';
+		}
+		$info = \plugins_api(
 			'plugin_information',
 			array(
 				'slug'   => $slug,

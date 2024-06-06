@@ -61,6 +61,9 @@ class StepProcessorResult {
 			throw new InvalidArgumentException( "{$type} is not allowed. Type must be one of " . implode( ',', self::MESSAGE_TYPES ) );
 		}
 
+		wplog($message);
+
+
 		$this->messages[] = compact( 'message', 'type' );
 	}
 
@@ -104,12 +107,6 @@ class StepProcessorResult {
 				return $type === $message['type'];
 			}
 		);
-	}
-
-	public function merge(StepProcessorResult $result) {
-	    foreach($result->get_messages() as $message) {
-			$this->add_message($message['message'], $message['type']);
-	    }
 	}
 
 	/**

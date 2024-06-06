@@ -48,13 +48,6 @@ class Blueprint {
 			$uploaded_file = $_FILES['file']['tmp_name'];
 			$is_zip = $_FILES['file']['type'] === 'application/zip';
 
-//			if ( json_last_error() !== JSON_ERROR_NONE ) {
-//				return new \WP_REST_Response(array(
-//					'status' => 'error',
-//					'message' => 'Invalid JSON data',
-//				), 400);
-//			}
-
 			// @todo check for alloweed types -- json or zip only.
 			if ($is_zip) {
 				$blueprint = BlueprintService::crate_from_zip($uploaded_file);

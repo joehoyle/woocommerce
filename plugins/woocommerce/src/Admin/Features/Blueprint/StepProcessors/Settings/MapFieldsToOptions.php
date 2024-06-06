@@ -44,6 +44,6 @@ class MapFieldsToOptions {
 			}
 		}
 
-		return StepProcessorResult::success();
+		return StepProcessorResult::success(static::class);
 	}
 }

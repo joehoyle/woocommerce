@@ -17,14 +17,14 @@ class InstallPlugins implements StepProcessor {
 	public function process($schema): StepProcessorResult {
 		$result = StepProcessorResult::success(self::class);
 		foreach ($schema->plugins as $plugin) {
-			if ($this->storage->is_supported_resource($plugin->type) === false ) {
+			if ($this->storage->is_supported_resource($plugin->resource) === false ) {
 				$result->add_error("Invalid resource type for {$plugin->slug}");
 				continue;
 			}
 
-			$downloaded_path = $this->storage->download($plugin->slug, $plugin->type);
+			$downloaded_path = $this->storage->download($plugin->slug, $plugin->resource);
 			if (! $downloaded_path ) {
-				$result->add_error("Unable to download {$plugin->slug} with {$plugin->type} resource type.");
+				$result->add_error("Unable to download {$plugin->slug} with {$plugin->resource} resource type.");
 				continue;
 			}
 
@@ -39,7 +39,7 @@ class InstallPlugins implements StepProcessor {
 	}
 
 	protected function install( $local_plugin_path ) {
-		if (class_exists('Plugin_Upgrader')) {
+		if (!class_exists('Plugin_Upgrader')) {
 			include_once ABSPATH . '/wp-admin/includes/class-wp-upgrader.php';
 			include_once ABSPATH . '/wp-admin/includes/class-plugin-upgrader.php';
 		}

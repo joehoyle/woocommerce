@@ -10,5 +10,5 @@ interface PluginDownloader {
 	 *
 	 * @return string downloaded local path.
 	 */
-	public function download($slug);
+	public function download($slug): string;
 }

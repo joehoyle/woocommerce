@@ -3,21 +3,19 @@
 namespace Automattic\WooCommerce\Admin\Features\Blueprint;
 
 class ZipSchema extends Schema {
-	protected $unzip_path;
+	protected string $unzip_path;
+	protected bool $filesystem_initialized = false;
 	public function __construct($zip_path, $unzip_path = null) {
-		$this->init_filesystem();
 		$this->unzip_path = $unzip_path ?? wp_upload_dir()['path'];
 		$unzip = $this->unzip($zip_path, $this->unzip_path);
 		if (!$unzip) {
-			throw new \Exception("Unable to unzip the file to {$zip_path}. Please check directory permission.");
+			throw new \Exception("Unable to unzip the file to {$zip_path}. Please check the directory permission.");
 		}
 
-		if (!$this->validate_unzipped_files()) {
-			//invalid zipfile provided.
-			// @todo needs better message.
-			throw new \Exception('Invalid zipfile provided.');
-		}
 		$this->schema = json_decode(file_get_contents($this->unzip_path.'/woo-blueprint.json'));
+		if (!$this->validate()) {
+			// throw exception;
+		}
 	}
 
 	public function get_unzip_path() {
@@ -25,19 +23,19 @@ class ZipSchema extends Schema {
 	}
 
 	protected function unzip($zip_path, $to) {
+		if ($this->filesystem_initialized === false ) {
+			if ( !function_exists('WP_Filesystem')) {
+				require_once( ABSPATH . 'wp-admin/includes/file.php' );
+			}
+			\WP_Filesystem();
+		}
+
 		$unzip =  \unzip_file($zip_path, $to);
 		if (!$unzip) {
 			throw new \Exception("Unable to unzip the file to {$zip_path}. Please check directory permission.");
 		}
 
 		return $unzip;
-	}
-
-	protected function init_filesystem() {
-		if ( !function_exists('WP_Filesystem')) {
-			require_once( ABSPATH . 'wp-admin/includes/file.php' );
-		}
-		\WP_Filesystem();
 	}
 
 	public function validate() {

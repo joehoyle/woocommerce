@@ -10,12 +10,13 @@ class LocalPluginDownloader implements PluginDownloader {
 
 	/**
 	 * Local plugins are already included (downloaded) in the zip file.
+	 * Return the full path.
 	 *
 	 * @param $slug
 	 *
 	 * @return false|string
 	 */
-	public function download( $slug ) {
+	public function download( $slug ): string {
 		foreach ($this->paths as $path) {
 			$full_path = $path.'/plugins/'.$slug.'.zip';
 			if (is_file($full_path)) {

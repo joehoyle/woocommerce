@@ -18,12 +18,7 @@ class PluginsStorage {
 	}
 
 	public function is_supported_resource($resource) {
-	    foreach ($this->downloaders as $downloader) {
-			if ($downloader->get_supported_resource() === $resource) {
-				return true;
-			}
-	    }
-		return false;
+		return isset($this->downloaders[$resource]);
 	}
 
 	public function download($slug, $resource) {

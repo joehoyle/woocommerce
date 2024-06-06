@@ -11,9 +11,6 @@ class Blueprint {
 	private StepProcessorFactory $step_factory;
 	public function __construct( Schema $schema, StepProcessorFactory $step_factory = null) {
 		$this->schema = $schema;
-		if (!$schema->validate()) {
-			// throw exception here;
-		}
 		if ($step_factory === null) {
 			$step_factory = new StepProcessorFactory($schema);
 		}
@@ -39,16 +36,12 @@ class Blueprint {
 
 		foreach ( $this->schema->get_steps() as $stepSchema ) {
 			$stepProcessor = $this->step_factory->create_from_name($stepSchema->step);
-			// test code
-			if (! $stepProcessor instanceof InstallPlugins) {
+			if ( ! $stepProcessor instanceof StepProcessor ) {
+				$result->add_error("Unable to create step processor for {$stepSchema->step}");
 				continue;
 			}
 
-			if ( ! $stepProcessor instanceof StepProcessor ) {
-				$result->add_error("Unable to create step processor for {$stepSchema->step}");
-			}
-
-			$result[] = $stepProcessor->process( $stepSchema );
+			$results[] = $stepProcessor->process( $stepSchema );
 		}
 
 		return $results;
