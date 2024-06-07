@@ -29,4 +29,14 @@ class CliResultFormatter {
 
 		format_items('table', $items, $header);
 	}
+
+	public function is_success() {
+	    foreach ($this->results as $result) {
+			$is_success = $result->is_success();
+			if (!$is_success) {
+				return false;
+			}
+	    }
+		return true;
+	}
 }

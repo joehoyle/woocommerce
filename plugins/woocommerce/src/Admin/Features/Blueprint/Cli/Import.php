@@ -11,12 +11,20 @@ class Import {
 		$this->schema_path = $schema_path;
 	}
 
-	public function run()
+	public function run($optional_args)
 	{
 	    $blueprint = SchemaProcessor::crate_from_file($this->schema_path);
 		$results = $blueprint->process();
 
 		$result_formatter = new CliResultFormatter($results);
-		$result_formatter->format('all');
+		$is_success = $result_formatter->is_success();
+
+		if (isset($optional_args['message'])) {
+			$result_formatter->format($optional_args['message']);
+		}
+
+		$is_success && \WP_CLI::success("$this->schema_path imported successfully");
+		!$is_success && \WP_CLI::error("Failed to import $this->schema_path. Run with ");
+
 	}
 }

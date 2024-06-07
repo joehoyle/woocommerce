@@ -3,6 +3,7 @@
 namespace Automattic\WooCommerce\Admin\API;
 
 use Automattic\WooCommerce\Admin\Features\Blueprint\SchemaProcessor;
+use Automattic\WooCommerce\Admin\Features\Blueprint\ExportSettings;
 
 class Blueprint {
 	/**
@@ -41,6 +42,7 @@ class Blueprint {
 	}
 
 	public function process() {
+
 		if ( !empty($_FILES['file']) && $_FILES['file']['error'] === UPLOAD_ERR_OK ) {
 			$uploaded_file = $_FILES['file']['tmp_name'];
 			$blueprint = SchemaProcessor::crate_from_file($uploaded_file);

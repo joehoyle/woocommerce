@@ -1,5 +1,7 @@
 <?php
 
+use Automattic\WooCommerce\Admin\Features\Blueprint\Cli\Export;
+use Automattic\WooCommerce\Admin\Features\Blueprint\Cli\ExportBlueprint;
 use Automattic\WooCommerce\Admin\Features\Blueprint\Cli\Import;
 
 /**
@@ -11,14 +13,35 @@ use Automattic\WooCommerce\Admin\Features\Blueprint\Cli\Import;
  */
 class BlueprintCLI {
 	public static function register_commands() {
-		WP_CLI::add_command( 'wc blueprint import', function($args) {
+		WP_CLI::add_command( 'wc blueprint import', function($args, $assoc_args) {
 			$import = new Import($args[0]);
-			$import->run();
+			$import->run($assoc_args);
 		}, array(
 			'synopsis' => [
 				[
 					'type' => 'positional',
 					'name' => 'schema-path',
+					'optional' => false,
+				],
+				[
+					'type' => 'assoc',
+					'name' => 'message',
+					'optional' => true,
+					'default' => 'all',
+					'options' => ['all', 'error', 'info', 'debug'],
+				],
+			],
+			'when' => 'after_wp_load',
+		));
+
+		WP_CLI::add_command( 'wc blueprint export', function($args, $assoc_args) {
+			$import = new Export($args[0]);
+			$import->run($assoc_args);
+		}, array(
+			'synopsis' => [
+				[
+					'type' => 'positional',
+					'name' => 'save-to',
 					'optional' => false,
 				],
 			],

@@ -9,9 +9,10 @@ use Plugin_Upgrader;
 
 class InstallThemes implements StepProcessor {
 	private ResourceStorage $storage;
+	private StepProcessorResult $result;
 
 	public function __construct(ResourceStorage $storage) {
-		$this->result = StepProcessorResult::success(self::class);
+		$this->result = StepProcessorResult::success('InstallThemes');
 		$this->storage = $storage;
 	}
 	public function process($schema): StepProcessorResult {
@@ -28,15 +29,12 @@ class InstallThemes implements StepProcessor {
 				continue;
 			}
 
-			$install = $this->install($downloaded_path);
-			if ($install) {
-				$this->result->add_debug("Theme {$theme->slug} installed successfully.");
-			}
-			$theme_switch = $theme->switch === true && $this->switch_theme($theme-slug);
+			$this->result->add_debug("'$theme->slug' has been downloaded in $downloaded_path");
 
-			if ($theme_switch) {
-				$this->result->add_debug("Switched theme to {$theme->slug}.");
-			}
+			$install = $this->install($downloaded_path);
+			$install && $this->result->add_debug("Theme '$theme->slug' installed successfully.");
+			$theme_switch = $theme->activate === true && $this->switch_theme($theme->slug);
+			$theme_switch && $this->result->add_debug("Switched theme to '$theme->slug'.");
 		}
 
 		return $this->result;

@@ -9,8 +9,6 @@ use WC_Tax;
 
 class ConfigureOnboardingProfile implements StepProcessor {
 	public function process($schema): StepProcessorResult {
-
-		return StepProcessorResult::success(self::class);
+		return StepProcessorResult::success('ConfigureOnboardingProfile');
 	}
-
 }
