@@ -45,7 +45,11 @@ class Blueprint {
 
 		if ( !empty($_FILES['file']) && $_FILES['file']['error'] === UPLOAD_ERR_OK ) {
 			$uploaded_file = $_FILES['file']['tmp_name'];
-			$blueprint = SchemaProcessor::crate_from_file($uploaded_file);
+			if ($_FILES['file']['type'] === 'application/zip') {
+				$blueprint = SchemaProcessor::crate_from_zip($uploaded_file);
+			} else {
+				$blueprint = SchemaProcessor::create_from_json($uploaded_file);
+			}
 			$paul = $blueprint->process();
 
 			return new \WP_HTTP_Response( array(

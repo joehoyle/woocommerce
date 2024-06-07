@@ -11,8 +11,7 @@ class Import {
 		$this->schema_path = $schema_path;
 	}
 
-	public function run($optional_args)
-	{
+	public function run($optional_args) {
 	    $blueprint = SchemaProcessor::crate_from_file($this->schema_path);
 		$results = $blueprint->process();
 
@@ -25,6 +24,5 @@ class Import {
 
 		$is_success && \WP_CLI::success("$this->schema_path imported successfully");
 		!$is_success && \WP_CLI::error("Failed to import $this->schema_path. Run with ");
-
 	}
 }
