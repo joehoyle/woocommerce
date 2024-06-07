@@ -2,9 +2,10 @@
 
 namespace Automattic\WooCommerce\Admin\Features\Blueprint;
 
-use Automattic\WooCommerce\Admin\Features\Blueprint\PluginLocators\LocalPluginDownloader;
-use Automattic\WooCommerce\Admin\Features\Blueprint\PluginLocators\OrgPluginDownloader;
+use Automattic\WooCommerce\Admin\Features\Blueprint\PluginLocators\LocalThemeDownloader;
+use Automattic\WooCommerce\Admin\Features\Blueprint\PluginLocators\OrgThemeDownloader;
 use Automattic\WooCommerce\Admin\Features\Blueprint\StepProcessors\InstallPlugins;
+use Automattic\WooCommerce\Admin\Features\Blueprint\StepProcessors\InstallThemes;
 
 class SchemaProcessor {
 	private Schema $schema;
@@ -20,6 +21,7 @@ class SchemaProcessor {
 
 	public static function crate_from_file($file) {
 		// @todo check for mime type
+		// @todo check for allowed types -- json or zip
 		$path_info = pathinfo($file);
 		$is_zip = $path_info['extension'] === 'zip';
 
@@ -44,8 +46,11 @@ class SchemaProcessor {
 
 		foreach ( $this->schema->get_steps() as $stepSchema ) {
 			$stepProcessor = $this->step_factory->create_from_name($stepSchema->step);
+			if (!$stepProcessor instanceof InstallThemes) {
+				continue;
+			}
 			if ( ! $stepProcessor instanceof StepProcessor ) {
-				$result->add_error("Unable to create step processor for {$stepSchema->step}");
+				$result->add_error("Unable to create a step processor for {$stepSchema->step}");
 				continue;
 			}
 

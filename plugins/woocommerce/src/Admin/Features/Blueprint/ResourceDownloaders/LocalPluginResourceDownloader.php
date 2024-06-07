@@ -1,9 +1,10 @@
 <?php
 
-namespace Automattic\WooCommerce\Admin\Features\Blueprint\PluginLocators;
+namespace Automattic\WooCommerce\Admin\Features\Blueprint\ResourceDownloaders;
 
-class LocalPluginDownloader implements PluginDownloader {
-	private array $paths = [];
+class LocalPluginResourceDownloader implements ResourceDownloader {
+	protected array $paths = [];
+	protected string $suffix = 'plugins';
 	public function __construct($path) {
 		$this->paths[] = $path;
 	}
@@ -18,7 +19,7 @@ class LocalPluginDownloader implements PluginDownloader {
 	 */
 	public function download( $slug ): string {
 		foreach ($this->paths as $path) {
-			$full_path = $path.'/plugins/'.$slug.'.zip';
+			$full_path = $path."/{$this->suffix}/".$slug.'.zip';
 			if (is_file($full_path)) {
 				return $full_path;
 			}

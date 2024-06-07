@@ -1,8 +1,8 @@
 <?php
 
-namespace Automattic\WooCommerce\Admin\Features\Blueprint\PluginLocators;
+namespace Automattic\WooCommerce\Admin\Features\Blueprint\ResourceDownloaders;
 
-class OrgPluginDownloader implements PluginDownloader {
+class OrgPluginResourceDownloader implements ResourceDownloader {
 	public function download( $slug ): string {
 		return $this->download_url($this->get_download_link($slug));
 	}

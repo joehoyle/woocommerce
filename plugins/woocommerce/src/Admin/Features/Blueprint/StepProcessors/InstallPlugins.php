@@ -2,16 +2,16 @@
 
 namespace Automattic\WooCommerce\Admin\Features\Blueprint\StepProcessors;
 
-use Automattic\WooCommerce\Admin\Features\Blueprint\PluginsStorage;
+use Automattic\WooCommerce\Admin\Features\Blueprint\ResourceStorage;
 use Automattic\WooCommerce\Admin\Features\Blueprint\StepProcessor;
 use Automattic\WooCommerce\Admin\Features\Blueprint\StepProcessorResult;
 use Plugin_Upgrader;
 
 class InstallPlugins implements StepProcessor {
-	private PluginsStorage $storage;
+	private ResourceStorage $storage;
 	private array $installed_plugin_paths = array();
 
-	public function __construct(PluginsStorage $storage) {
+	public function __construct(ResourceStorage $storage) {
 		$this->storage = $storage;
 	}
 	public function process($schema): StepProcessorResult {

@@ -1,0 +1,56 @@
+<?php
+
+namespace Automattic\WooCommerce\Admin\Features\Blueprint\StepProcessors;
+
+use Automattic\WooCommerce\Admin\Features\Blueprint\ResourceStorage;
+use Automattic\WooCommerce\Admin\Features\Blueprint\StepProcessor;
+use Automattic\WooCommerce\Admin\Features\Blueprint\StepProcessorResult;
+use Plugin_Upgrader;
+
+class InstallThemes implements StepProcessor {
+	private ResourceStorage $storage;
+
+	public function __construct(ResourceStorage $storage) {
+		$this->storage = $storage;
+	}
+	public function process($schema): StepProcessorResult {
+		$result = StepProcessorResult::success(self::class);
+		foreach ($schema->themes as $theme) {
+			if ($this->storage->is_supported_resource($theme->resource) === false ) {
+				$result->add_error("Invalid resource type for {$theme->slug}");
+				continue;
+			}
+
+			$downloaded_path = $this->storage->download($theme->slug, $theme->resource);
+
+			if (! $downloaded_path ) {
+				$result->add_error("Unable to download {$theme->slug} with {$theme->resource} resource type.");
+				continue;
+			}
+
+			$this->install($downloaded_path);
+			if ($theme->switch === true) {
+				switch_theme($theme->slug);
+			}
+
+		}
+
+		return $result;
+	}
+
+	protected function install( $local_plugin_path ) {
+		if (!class_exists('WP_Filesystem_Base')) {
+			require_once ABSPATH . 'wp-admin/includes/file.php';
+			WP_Filesystem();
+		}
+
+
+		$unzip_result = unzip_file($local_plugin_path, get_theme_root());
+
+		if (is_wp_error($unzip_result)) {
+			return false;
+		}
+
+		return true;
+	}
+}

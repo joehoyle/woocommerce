@@ -2,14 +2,14 @@
 
 namespace Automattic\WooCommerce\Admin\Features\Blueprint;
 
-use Automattic\WooCommerce\Admin\Features\Blueprint\PluginLocators\PluginDownloader;
+use Automattic\WooCommerce\Admin\Features\Blueprint\ResourceDownloaders\ResourceDownloader;
 
-class PluginsStorage {
+class ResourceStorage {
 	/**
-	 * @var PluginDownloader[]
+	 * @var ResourceDownloader[]
 	 */
 	protected array $downloaders = array();
-	public function add_downloader(PluginDownloader $downloader) {
+	public function add_downloader(ResourceDownloader $downloader) {
 		$supported_resource = $downloader->get_supported_resource();
 		if (!isset($this->downloaders[$supported_resource])) {
 			$this->downloaders[$supported_resource] = array();

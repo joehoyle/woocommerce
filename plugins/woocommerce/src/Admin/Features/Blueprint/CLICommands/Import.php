@@ -14,5 +14,6 @@ class Import {
 	{
 	    $blueprint = SchemaProcessor::crate_from_file($this->schema_path);
 		$results = $blueprint->process();
+		var_dump($results);
 	}
 }

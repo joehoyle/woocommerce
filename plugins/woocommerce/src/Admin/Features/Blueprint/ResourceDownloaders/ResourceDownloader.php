@@ -1,8 +1,8 @@
 <?php
 
-namespace Automattic\WooCommerce\Admin\Features\Blueprint\PluginLocators;
+namespace Automattic\WooCommerce\Admin\Features\Blueprint\ResourceDownloaders;
 
-interface PluginDownloader {
+interface ResourceDownloader {
 	public function get_supported_resource(): string;
 
 	/**
