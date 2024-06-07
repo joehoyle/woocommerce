@@ -11,31 +11,35 @@ class InstallThemes implements StepProcessor {
 	private ResourceStorage $storage;
 
 	public function __construct(ResourceStorage $storage) {
+		$this->result = StepProcessorResult::success(self::class);
 		$this->storage = $storage;
 	}
 	public function process($schema): StepProcessorResult {
-		$result = StepProcessorResult::success(self::class);
 		foreach ($schema->themes as $theme) {
 			if ($this->storage->is_supported_resource($theme->resource) === false ) {
-				$result->add_error("Invalid resource type for {$theme->slug}");
+				$this->result->add_error("Invalid resource type for {$theme->slug}");
 				continue;
 			}
 
 			$downloaded_path = $this->storage->download($theme->slug, $theme->resource);
 
 			if (! $downloaded_path ) {
-				$result->add_error("Unable to download {$theme->slug} with {$theme->resource} resource type.");
+				$this->result->add_error("Unable to download {$theme->slug} with {$theme->resource} resource type.");
 				continue;
 			}
 
-			$this->install($downloaded_path);
-			if ($theme->switch === true) {
-				switch_theme($theme->slug);
+			$install = $this->install($downloaded_path);
+			if ($install) {
+				$this->result->add_debug("Theme {$theme->slug} installed successfully.");
 			}
+			$theme_switch = $theme->switch === true && $this->switch_theme($theme-slug);
 
+			if ($theme_switch) {
+				$this->result->add_debug("Switched theme to {$theme->slug}.");
+			}
 		}
 
-		return $result;
+		return $this->result;
 	}
 
 	protected function install( $local_plugin_path ) {
@@ -44,13 +48,17 @@ class InstallThemes implements StepProcessor {
 			WP_Filesystem();
 		}
 
-
 		$unzip_result = unzip_file($local_plugin_path, get_theme_root());
 
 		if (is_wp_error($unzip_result)) {
 			return false;
 		}
 
+
 		return true;
+	}
+
+	protected function switch_theme( $slug ) {
+		return \switch_theme($slug);
 	}
 }

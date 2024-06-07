@@ -1,7 +1,8 @@
 <?php
 
-namespace Automattic\WooCommerce\Admin\Features\Blueprint\CLICommands;
+namespace Automattic\WooCommerce\Admin\Features\Blueprint\Cli;
 
+use Automattic\WooCommerce\Admin\Features\Blueprint\CliResultFormatter;
 use Automattic\WooCommerce\Admin\Features\Blueprint\SchemaProcessor;
 
 class Import {
@@ -14,6 +15,8 @@ class Import {
 	{
 	    $blueprint = SchemaProcessor::crate_from_file($this->schema_path);
 		$results = $blueprint->process();
-		var_dump($results);
+
+		$result_formatter = new CliResultFormatter($results);
+		$result_formatter->format('all');
 	}
 }

@@ -1,16 +1,19 @@
 <?php
 
-use Automattic\WooCommerce\Admin\Features\Blueprint\CLICommands\Import;
+use Automattic\WooCommerce\Admin\Features\Blueprint\Cli\Import;
 
+/**
+ * Class BlueprintCLI.
+ *
+ * This class is included and execute from WC_CLI(class-wc-cli.php) to register
+ * WP CLI commands.
+ *
+ */
 class BlueprintCLI {
-	public function __construct() {
-		// @todo is this even allowed here? or does it have any sideeffect for other commands?
-	}
 	public static function register_commands() {
 		WP_CLI::add_command( 'wc blueprint import', function($args) {
 			$import = new Import($args[0]);
 			$import->run();
-
 		}, array(
 			'synopsis' => [
 				[
@@ -22,5 +25,4 @@ class BlueprintCLI {
 			'when' => 'after_wp_load',
 		));
 	}
-
 }
