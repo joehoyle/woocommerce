@@ -26,4 +26,24 @@ class Util {
 		// Convert the entire string to lowercase
 		return strtolower($snake);
 	}
+
+	public static function array_filter_by_field($array, $field_name, $force_convert = false) {
+		if (!is_array($array) && $force_convert) {
+			$array = json_decode(json_encode($array), true);
+		}
+		$result = [];
+		foreach ($array as $item) {
+			if (is_array($item)) {
+				if (isset($item[$field_name])) {
+					$result[] = $item;
+				}
+				// Recursively search in nested arrays
+				$nestedResult = static::array_filter_by_field($item, $field_name);
+				if (!empty($nestedResult)) {
+					$result = array_merge($result, $nestedResult);
+				}
+			}
+		}
+		return $result;
+	}
 }

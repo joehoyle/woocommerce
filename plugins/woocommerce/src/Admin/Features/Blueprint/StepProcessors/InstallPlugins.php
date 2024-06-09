@@ -16,6 +16,7 @@ class InstallPlugins implements StepProcessor {
 	}
 	public function process($schema): StepProcessorResult {
 		$result = StepProcessorResult::success('InstallPlugins');
+		return $result;
 		foreach ($schema->plugins as $plugin) {
 			if ($this->storage->is_supported_resource($plugin->resource) === false ) {
 				$result->add_error("Invalid resource type for {$plugin->slug}");

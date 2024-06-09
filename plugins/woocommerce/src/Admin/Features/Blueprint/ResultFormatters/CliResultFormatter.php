@@ -14,7 +14,7 @@ class CliResultFormatter {
 	}
 
 	public function format($message_type = 'debug') {
-		$header = array('Step Processor', 'Message');
+		$header = array('Step Processor', 'Type', 'Message');
 		$items = array();
 
 		foreach ($this->results as $result) {
@@ -22,6 +22,7 @@ class CliResultFormatter {
 			foreach ($result->get_messages($message_type) as $message) {
 				$items[] = array(
 					'Step Processor' => $step_name,
+					'Type' => $message['type'],
 					'Message' => $message['message'],
 				);
 			}

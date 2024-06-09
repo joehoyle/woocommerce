@@ -4,7 +4,6 @@ namespace Automattic\WooCommerce\Admin\Features\Blueprint;
 
 use WC_Admin_Settings;
 use WC_Settings_Page;
-use WC_Tax;
 
 /**
  * Returns the following array structure based off the settings configuration.
@@ -34,16 +33,14 @@ class ExportSettings implements ExportsBlueprintStep {
 	 * @var WC_Settings_Page[]
 	 */
 	private array $setting_pages;
+	private array $exclude_pages = array('integration', 'site-visibility');
+
 	public function __construct(array $setting_pages = array()) {
 		if (empty($setting_pages)){
 			$setting_pages = WC_Admin_Settings::get_settings_pages();
 		}
 		$this->setting_pages = $setting_pages;
-
-		// @todo -- need a better approach
-		$this->add_filter('wooblueprint_export_settings_tax', array($this, 'export_tax_rates'));
-		$this->add_filter('wooblueprint_export_settings_shipping', array($this, 'export_shipping'));
-
+		$this->add_filter('wooblueprint_export_setttings', array($this, 'add_site_visibility_setttings'));
 	}
 
 	public function add_filter($name, $callback) {
@@ -55,151 +52,125 @@ class ExportSettings implements ExportsBlueprintStep {
 	}
 
 	public function export() {
-		$settings = array();
-	    foreach ($this->setting_pages as $page) {
+		$pages = [];
+		$options = [];
+
+		foreach ($this->setting_pages as $page) {
 			$id = $page->get_id();
-			if ($id !='shipping') {
+			if (in_array($id, $this->exclude_pages, true)) {
 				continue;
 			}
-			$page_settings = $this->get_page_settings($page);
-			// If we have only on section, it's a setting page without any sub-sections
-		    // just get the values so we avoid nested array
-			if (count($page_settings) === 1) {
-				$page_settings = current($page_settings);
+
+			$pages[$id] = $this->get_page_info($page);
+			foreach ($pages[$id]['options'] as $option) {
+				$options[] = $option;
+			}
+			unset($pages[$id]['options']);
+		}
+
+		$export_data =  compact('pages', 'options');
+
+		$this->apply_filters('wooblueprint_export_setttings', $export_data);
+
+		return $export_data;
+ 	}
+
+	 protected function get_page_info(WC_Settings_Page $page) {
+		$info = array(
+			'label' => $page->get_label(),
+			'sections' => array(),
+		);
+
+		foreach ($page->get_sections() as $id => $section) {
+			$section_id = Util::camel_to_snake(strtolower($section));
+			$info['sections'][$section_id] = array(
+				'label' => $section,
+				'subsections' => array(),
+			);
+
+			$settings = $page->get_settings_for_section($id);
+
+			// Get subsections
+			$subsections = array_filter($settings, function($setting) {
+				return isset($setting['type']) && $setting['type'] === 'title' && isset($setting['title']);
+			});
+
+
+			foreach ($subsections as $subsection) {
+				if (!isset($subsection['id'])) {
+					$subsection['id'] = Util::camel_to_snake( strtolower( $subsection['title'] ) );
+				}
+
+				$info['sections'][$section_id]['subsections'][$subsection['id']] = array(
+					'label' => $subsection['title']
+				);
 			}
 
-			$page_settings = $this->apply_filters('wooblueprint_export_settings_'.$id, $page_settings);
+			// Ge opttions
+			$info['options'] = $this->get_page_section_settings($settings, $page->get_id(), $section_id);
+		}
+		return $info;
+	 }
 
-			$settings[$id] = $page_settings;
-	    }
-		return $settings;
-	}
 
 	public function export_as_step_configuration() {
 	    return array(
 			'step' => 'configureSettings',
-		    'pages' => $this->export()
+		    'values' => $this->export()
 		);
 	}
 
-	private function get_page_settings( WC_Settings_page $page ) {
-		$settings = array();
-		foreach ($page->get_sections() as $section_id => $section) {
-			$label = Util::camel_to_snake(strtolower($section));
-			$section_settings = $this->get_page_section_settings($page->get_settings($section_id));
-			if (count($section_settings) === 1) {
-				$section_settings = current($section_settings);
-			}
-			$settings[$label] = $section_settings;
-		}
-
-		return $settings;
-	}
-
-	private function get_page_section_settings($settings) {
+	private function get_page_section_settings($settings, $page, $section = '') {
 		$current_title = '';
 		$data = array();
 		foreach ($settings as $setting) {
-			if ($setting['type'] === 'sectionend' || !isset($setting['id'])) {
+			if ($setting['type'] === 'sectionend' || $setting['type'] === 'slotfill_placeholder' || !isset($setting['id']) ) {
 				continue;
 			}
 
 			if ($setting['type'] == 'title') {
 				$current_title = Util::camel_to_snake(strtolower($setting['title']));
-				if (!isset($newArray[$current_title])) {
-					$newArray[$current_title] = array();
-				}
 			} else {
+				$location = $page.'.'.$section;
 				if ($current_title) {
-					$data[$current_title][] = array(
-						'id' => $setting['id'],
-						'value' => get_option($setting['id'], $setting['default'] ?? null),
-						'title' => $setting['title'] ?? $setting['desc'],
-					);
+					$location .= '.'.$current_title;
 				}
+
+				$data[] = array(
+					'id' => $setting['id'],
+					'value' => get_option($setting['id'], $setting['default'] ?? null),
+					'title' => $setting['title'] ?? $setting['desc'] ?? '',
+					'location' => $location,
+				);
 			}
 		}
 		return $data;
 	}
 
-	public function export_tax_rates($settings) {
-		global $wpdb;
-		// @todo check to see if we already have a DAO for taxes.
-		$rates = $wpdb->get_results("
-			SELECT *
-			FROM {$wpdb->prefix}woocommerce_tax_rates as tax_rates
-		");
-
-		unset($settings['standard_rates']);
-		unset($settings['reduced_rate_rates']);
-		unset($settings['zero_rate_rates']);
-
-		$settings['rates'] = array();
-
-		foreach ($rates as $rate) {
-			$settings['rates'][] = (array)$rate;
-		}
-		return $settings;
-	}
-
-	public function export_shipping($settings) {
-		global $wpdb;
-		$classes = $wpdb->get_results("
-			SELECT *
-			FROM {$wpdb->prefix}term_taxonomy
-			where taxonomy = 'product_shipping_class'
-		");
-
-		$settings['classes'] = $classes;
-		$settings['local_pickup'] = array(
-			'general' => get_option('woocommerce_pickup_location_settings', array()),
-			'locations' => get_option('pickup_location_pickup_locations', array())
+	public function add_site_visibility_setttings($export_data) {
+		$export_data['pages']['site_visibility'] = array(
+			'label' => 'Site Visibility',
+			'sections'=> array(
+				'general' => array(
+					'label' => 'General'
+				)
+			)
 		);
 
-		$settings['shipping_zones'] = array();
+		$export_data['options'][] = array(
+			'id' => 'woocommerce_coming_soon',
+			'value' => get_option('woocommerce_coming_soon'),
+			'title' => 'Coming soon',
+			'location' => 'site_visibilitty.general'
+		);
 
-		$zones = $wpdb->get_results("
-			SELECT *
-			FROM {$wpdb->prefix}woocommerce_shipping_zones
-		");
+		$export_data['options'][] = array(
+			'id' => 'woocommerce_store_pages_only',
+			'value' => get_option('woocommerce_store_pages_only'),
+			'title' => 'Restrict to store pages only',
+			'location' => 'site_visibilitty.general',
+		);
 
-		$methods = $wpdb->get_results("
-			SELECT *
-			FROM {$wpdb->prefix}woocommerce_shipping_zone_methods
-		");
-
-
-		$methods_by_zone_id = array();
-		foreach ($methods as $method) {
-			if (!isset($methods_by_zone_id[$method->zone_id])) {
-				$methods_by_zone_id[$method->zone_id] = array();
-			}
-			$methods_by_zone_id[$method->zone_id][] = $method->method_id;
-		}
-
-		$locations = $wpdb->get_results("
-			SELECT *
-			FROM {$wpdb->prefix}woocommerce_shipping_zone_locations
-		");
-
-		$locations_by_zone_id = array();
-		foreach ($locations as $location) {
-			if (!isset($locations_by_zone_id[$location->zone_id])) {
-				$locations_by_zone_id[$location->zone_id] = array();
-			}
-			$locations_by_zone_id[$location->zone_id][] = $location->location_id;
-		}
-
-		$settings['shipping_methods'] = $methods;
-		$settings['shipping_locations'] = $locations;
-
-
-		foreach ($zones as $zone) {
-			$zone->methods = $methods_by_zone_id[$zone->zone_id];
-			$zone->locations = $locations_by_zone_id[$zone->zone_id];
-			$settings['shipping_zones'][] = $zone;
-		}
-
-		return $settings;
+		return $export_data;
 	}
 }

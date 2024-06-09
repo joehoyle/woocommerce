@@ -4,8 +4,10 @@ namespace Automattic\WooCommerce\Admin\Features\Blueprint;
 
 class ExportBlueprintSchema {
 	protected array $default_exporters = array(
-//		ExportCoreProfilerSettings::class,
+		ExportCoreProfilerSettings::class,
 		ExportSettings::class,
+		ExportTaxRates::class,
+		ExportShipping::class,
 //        ExportPluginList::class,
 //		ExportThemeList::class
 	);

@@ -16,6 +16,7 @@ class InstallThemes implements StepProcessor {
 		$this->storage = $storage;
 	}
 	public function process($schema): StepProcessorResult {
+		return $this->result;
 		foreach ($schema->themes as $theme) {
 			if ($this->storage->is_supported_resource($theme->resource) === false ) {
 				$this->result->add_error("Invalid resource type for {$theme->slug}");

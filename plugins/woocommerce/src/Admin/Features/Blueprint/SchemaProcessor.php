@@ -4,6 +4,7 @@ namespace Automattic\WooCommerce\Admin\Features\Blueprint;
 
 use Automattic\WooCommerce\Admin\Features\Blueprint\PluginLocators\LocalThemeDownloader;
 use Automattic\WooCommerce\Admin\Features\Blueprint\PluginLocators\OrgThemeDownloader;
+use Automattic\WooCommerce\Admin\Features\Blueprint\StepProcessors\ConfigureCoreProfiler;
 use Automattic\WooCommerce\Admin\Features\Blueprint\StepProcessors\ConfigureSettings;
 use Automattic\WooCommerce\Admin\Features\Blueprint\StepProcessors\InstallPlugins;
 use Automattic\WooCommerce\Admin\Features\Blueprint\StepProcessors\InstallThemes;
@@ -49,9 +50,6 @@ class SchemaProcessor {
 
 		foreach ( $this->schema->get_steps() as $stepSchema ) {
 			$stepProcessor = $this->step_factory->create_from_name($stepSchema->step);
-			if (!$stepProcessor instanceof ConfigureSettings) {
-				continue;
-			}
 			if ( ! $stepProcessor instanceof StepProcessor ) {
 				$result->add_error("Unable to create a step processor for {$stepSchema->step}");
 				continue;

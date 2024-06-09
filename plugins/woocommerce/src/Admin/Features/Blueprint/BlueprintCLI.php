@@ -27,7 +27,6 @@ class BlueprintCLI {
 					'type' => 'assoc',
 					'name' => 'message',
 					'optional' => true,
-					'default' => 'all',
 					'options' => ['all', 'error', 'info', 'debug'],
 				],
 			],
