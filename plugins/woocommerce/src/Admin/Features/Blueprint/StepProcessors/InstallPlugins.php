@@ -16,8 +16,14 @@ class InstallPlugins implements StepProcessor {
 	}
 	public function process($schema): StepProcessorResult {
 		$result = StepProcessorResult::success('InstallPlugins');
-		return $result;
+
+		$installed_plugins = $this->get_installed_plugins_paths();
+
 		foreach ($schema->plugins as $plugin) {
+			if (isset($installed_plugins[$plugin->slug])) {
+				$result->add_info("Skipped installing {$plugin->slug}. It is already installed.");
+				continue;
+			}
 			if ($this->storage->is_supported_resource($plugin->resource) === false ) {
 				$result->add_error("Invalid resource type for {$plugin->slug}");
 				continue;
@@ -59,6 +65,9 @@ class InstallPlugins implements StepProcessor {
 	}
 
 	protected function get_installed_plugins_paths() {
+		if (!function_exists('get_plugins')) {
+			require_once ABSPATH . 'wp-admin/includes/plugin.php';
+		}
 		$plugins           = get_plugins();
 		$installed_plugins = array();
 

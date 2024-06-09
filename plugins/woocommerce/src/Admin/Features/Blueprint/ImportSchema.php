@@ -9,7 +9,7 @@ use Automattic\WooCommerce\Admin\Features\Blueprint\StepProcessors\ConfigureSett
 use Automattic\WooCommerce\Admin\Features\Blueprint\StepProcessors\InstallPlugins;
 use Automattic\WooCommerce\Admin\Features\Blueprint\StepProcessors\InstallThemes;
 
-class SchemaProcessor {
+class ImportSchema {
 	private Schema $schema;
 	private StepProcessorFactory $step_factory;
 	public function __construct( Schema $schema, StepProcessorFactory $step_factory = null) {
@@ -27,7 +27,7 @@ class SchemaProcessor {
 		$path_info = pathinfo($file);
 		$is_zip = $path_info['extension'] === 'zip';
 
-		return $is_zip ? SchemaProcessor::crate_from_zip($file) : SchemaProcessor::create_from_json($file);
+		return $is_zip ? ImportSchema::crate_from_zip($file) : ImportSchema::create_from_json($file);
 	}
 
 	public static function create_from_json($json_path) {
@@ -42,11 +42,9 @@ class SchemaProcessor {
 	 * @return StepProcessorResult[]
 	 */
 	public function process() {
-
 		$results = array();
 		$result = StepProcessorResult::success(self::class);
 		$results[] = $result;
-
 
 		foreach ( $this->schema->get_steps() as $stepSchema ) {
 			$stepProcessor = $this->step_factory->create_from_name($stepSchema->step);

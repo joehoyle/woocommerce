@@ -2,7 +2,7 @@
 
 namespace Automattic\WooCommerce\Admin\Features\Blueprint;
 
-class ExportPluginList implements ExportsBlueprintStep {
+class PluginListExporter implements Exporter {
 	public function export() {
 		if (!function_exists('is_plugin_active') || !function_exists('get_plugins')) {
 			require_once ABSPATH . 'wp-admin/includes/plugin.php';
@@ -34,7 +34,6 @@ class ExportPluginList implements ExportsBlueprintStep {
 		}
 	    return $export;
 	}
-
 
 	public function export_as_step_configuration() {
 		return array(

@@ -16,8 +16,13 @@ class InstallThemes implements StepProcessor {
 		$this->storage = $storage;
 	}
 	public function process($schema): StepProcessorResult {
-		return $this->result;
+		$installed_themes = wp_get_themes();
+
 		foreach ($schema->themes as $theme) {
+			if (isset($installed_themes[$theme->slug])) {
+				$this->result->add_info("Skipped installing {$theme->slug}. It is already installed.");
+				continue;
+			}
 			if ($this->storage->is_supported_resource($theme->resource) === false ) {
 				$this->result->add_error("Invalid resource type for {$theme->slug}");
 				continue;

@@ -1,20 +1,20 @@
 <?php
+namespace Automattic\WooCommerce\Admin\Features\Blueprint;
 
-use Automattic\WooCommerce\Admin\Features\Blueprint\Cli\Export;
-use Automattic\WooCommerce\Admin\Features\Blueprint\Cli\ExportBlueprint;
-use Automattic\WooCommerce\Admin\Features\Blueprint\Cli\Import;
+use Automattic\WooCommerce\Admin\Features\Blueprint\Cli\ExportCli;
+use Automattic\WooCommerce\Admin\Features\Blueprint\Cli\ImportCli;
 
 /**
- * Class BlueprintCLI.
+ * Class Cli.
  *
  * This class is included and execute from WC_CLI(class-wc-cli.php) to register
  * WP CLI commands.
  *
  */
-class BlueprintCLI {
+class Cli {
 	public static function register_commands() {
-		WP_CLI::add_command( 'wc blueprint import', function($args, $assoc_args) {
-			$import = new Import($args[0]);
+		\WP_CLI::add_command( 'wc blueprint import', function($args, $assoc_args) {
+			$import = new ImportCli($args[0]);
 			$import->run($assoc_args);
 		}, array(
 			'synopsis' => [
@@ -25,7 +25,7 @@ class BlueprintCLI {
 				],
 				[
 					'type' => 'assoc',
-					'name' => 'message',
+					'name' => 'show-messages',
 					'optional' => true,
 					'options' => ['all', 'error', 'info', 'debug'],
 				],
@@ -33,9 +33,9 @@ class BlueprintCLI {
 			'when' => 'after_wp_load',
 		));
 
-		WP_CLI::add_command( 'wc blueprint export', function($args, $assoc_args) {
-			$import = new Export($args[0]);
-			$import->run($assoc_args);
+		\WP_CLI::add_command( 'wc blueprint export', function($args, $assoc_args) {
+			$import = new ExportCli($args[0]);
+			$import->run();
 		}, array(
 			'synopsis' => [
 				[

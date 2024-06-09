@@ -2,6 +2,6 @@
 
 namespace Automattic\WooCommerce\Admin\Features\Blueprint;
 
-interface ExportsBlueprintStep {
+interface Exporter {
 	public function export_as_step_configuration();
 }

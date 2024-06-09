@@ -2,7 +2,7 @@
 
 namespace Automattic\WooCommerce\Admin\Features\Blueprint;
 
-class ExportPaymentGateways implements ExportsBlueprintStep {
+class PaymentGatewaysExporter implements Exporter {
 
 	public function export() {
 		$payment_gateways = array();

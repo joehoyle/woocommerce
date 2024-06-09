@@ -2,7 +2,7 @@
 
 namespace Automattic\WooCommerce\Admin\Features\Blueprint;
 
-class ExportThemeList implements ExportsBlueprintStep {
+class ThemeListExporter implements Exporter {
 	public function export() {
 		if ( ! function_exists( 'wp_get_themes' ) ) {
 			require_once ABSPATH . 'wp-includes/theme.php';
@@ -41,7 +41,7 @@ class ExportThemeList implements ExportsBlueprintStep {
 	public function export_as_step_configuration() {
 		return array(
 			'step' => 'installThemes',
-			'plugins' => $this->export()
+			'themes' => $this->export()
 		);
 	}
 }

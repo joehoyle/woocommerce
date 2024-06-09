@@ -2,7 +2,7 @@
 
 namespace Automattic\WooCommerce\Admin\Features\Blueprint;
 
-class ExportCoreProfilerSettings implements ExportsBlueprintStep {
+class CoreProfilerSettingsExporter implements Exporter {
 	public function export() {
 		$onboarding_profile = get_option('woocommerce_onboarding_profile', array());
 	    return array(

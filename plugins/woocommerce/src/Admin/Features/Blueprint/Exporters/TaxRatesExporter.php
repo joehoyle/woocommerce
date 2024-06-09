@@ -2,7 +2,7 @@
 
 namespace Automattic\WooCommerce\Admin\Features\Blueprint;
 
-class ExportTaxRates implements ExportsBlueprintStep {
+class TaxRatesExporter implements Exporter {
 
 	public function export() {
 		global $wpdb;

@@ -2,8 +2,9 @@
 
 namespace Automattic\WooCommerce\Admin\API;
 
-use Automattic\WooCommerce\Admin\Features\Blueprint\SchemaProcessor;
-use Automattic\WooCommerce\Admin\Features\Blueprint\ExportSettings;
+use Automattic\WooCommerce\Admin\Features\Blueprint\ImportSchema;
+use Automattic\WooCommerce\Admin\Features\Blueprint\JsonResultFormatter;
+use Automattic\WooCommerce\Admin\Features\Blueprint\SettingsExporter;
 
 class Blueprint {
 	/**
@@ -42,20 +43,21 @@ class Blueprint {
 	}
 
 	public function process() {
-
 		if ( !empty($_FILES['file']) && $_FILES['file']['error'] === UPLOAD_ERR_OK ) {
 			$uploaded_file = $_FILES['file']['tmp_name'];
 			if ($_FILES['file']['type'] === 'application/zip') {
-				$blueprint = SchemaProcessor::crate_from_zip($uploaded_file);
+				$blueprint = ImportSchema::crate_from_zip($uploaded_file);
 			} else {
-				$blueprint = SchemaProcessor::create_from_json($uploaded_file);
+				$blueprint = ImportSchema::create_from_json($uploaded_file);
 			}
-			$paul = $blueprint->process();
+			$results = $blueprint->process();
+			$result_formatter = new JsonResultFormatter($results);
+
 
 			return new \WP_HTTP_Response( array(
 				'status' => 'success',
 				'message' => 'Data processed successfully',
-				'data' => $paul,
+				'data' => $result_formatter->format(),
 			), 200 );
 		}
 

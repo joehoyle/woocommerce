@@ -5,30 +5,7 @@ namespace Automattic\WooCommerce\Admin\Features\Blueprint;
 use WC_Admin_Settings;
 use WC_Settings_Page;
 
-/**
- * Returns the following array structure based off the settings configuration.
- * Page Name
- *  Section A
- *      setting_id
- *          value
- *          description
- *
- * array(
- *     'general' => array(
- *          'store_address' => array(
- *              'woocommerce_address_1' => array(
- *                  'value' => '1234 Main St',
- *                  'description' => 'Address line 1'
- *              )
- *          )
- *      ),
- *      'products' => array(
- *          'general' => array(...),
- *          'inventory' => array(...),
- *      )
- * )
- */
-class ExportSettings implements ExportsBlueprintStep {
+class SettingsExporter implements Exporter {
 	/**
 	 * @var WC_Settings_Page[]
 	 */

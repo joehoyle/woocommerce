@@ -2,20 +2,20 @@
 
 namespace Automattic\WooCommerce\Admin\Features\Blueprint;
 
-class ExportBlueprintSchema {
+class ExportSchema {
 	protected array $default_exporters = array(
-//      ExportPluginList::class,
-//		ExportThemeList::class,
-//		ExportCoreProfilerSettings::class,
-//		ExportTaxRates::class,
-//		ExportShipping::class,
-		ExportSettings::class,
-		ExportPaymentGateways::class,
+        PluginListExporter::class,
+		ThemeListExporter::class,
+		CoreProfilerSettingsExporter::class,
+		TaxRatesExporter::class,
+		ShippingExporter::class,
+		SettingsExporter::class,
+		PaymentGatewaysExporter::class,
 	);
 
 	protected array $additional_exporters = array();
 
-	public function add_exporter(ExportsBlueprintStep $exporter) {
+	public function add_exporter(Exporter $exporter) {
 	    $this->additional_exporters[] = $exporter;
 	}
 

@@ -2,16 +2,16 @@
 
 namespace Automattic\WooCommerce\Admin\Features\Blueprint\Cli;
 
-use Automattic\WooCommerce\Admin\Features\Blueprint\ExportBlueprintSchema;
+use Automattic\WooCommerce\Admin\Features\Blueprint\ExportSchema;
 
-class Export {
+class ExportCli {
 	private string $save_to;
 	public function __construct($save_to) {
 		$this->save_to = $save_to;
 	}
 
 	public function run() {
-		$schema = (new ExportBlueprintSchema())->export();
+		$schema = (new ExportSchema())->export();
 		file_put_contents($this->save_to, json_encode($schema, JSON_PRETTY_PRINT));
 		\WP_CLI::success("Exported to {$this->save_to}");
 	}

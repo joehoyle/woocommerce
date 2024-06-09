@@ -3,7 +3,7 @@
 namespace Automattic\WooCommerce\Admin\Features\Blueprint;
 
 
-class ExportShipping implements ExportsBlueprintStep {
+class ShippingExporter implements Exporter {
 	public function export() {
 		global $wpdb;
 		$classes = $wpdb->get_results("
@@ -34,8 +34,6 @@ class ExportShipping implements ExportsBlueprintStep {
 			'general' => get_option('woocommerce_pickup_location_settings', array()),
 			'locations' => get_option('pickup_location_pickup_locations', array())
 		);
-
-		$settings['shipping_zones'] = array();
 
 		$zones = $wpdb->get_results("
 			SELECT *
