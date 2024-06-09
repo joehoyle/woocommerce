@@ -12,11 +12,11 @@ class SetOptions implements StepProcessor {
 				$value = (array) $value;
 			}
 			$updated = update_option( $key, $value );
-			$updated && $result->add_debug("{$key} has been updated");
+			$updated && $result->add_info("{$key} has been updated");
 			if (!$updated) {
 				$current_value = get_option($key);
 				if ($current_value === $value) {
-					$result->add_debug( "{$key} has not been updated because the current value is already up to date." );
+					$result->add_info( "{$key} has not been updated because the current value is already up to date." );
 				}
 			}
 

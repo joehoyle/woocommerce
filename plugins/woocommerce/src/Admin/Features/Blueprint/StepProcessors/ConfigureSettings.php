@@ -12,22 +12,13 @@ use WC_Tax;
 
 class ConfigureSettings implements StepProcessor {
 	public function process($schema): StepProcessorResult {
-		$result = StepProcessorResult::success('ConfigureSettings');
-
+		$options = array();
 		foreach ($schema->values->options as $option) {
-			if (is_object($option->value)) {
-				$option->value = (array) $option->value;
-			}
-			$updated = update_option($option->id, $option->value);
-			$updated && $result->add_debug("{$option->id} has been updated");
-
-			if (!$updated) {
-				$current_value = get_option($option->id);
-				if ($current_value === $option->value) {
-					$result->add_debug( "{$option->id} has not been updated because the current value is already up to date." );
-				}
-			}
+			$options[$option->id] = $option->value;
 		}
-		return $result;
+
+		return (new SetOptions())->process((object) array(
+			'options' => $options
+		));
 	}
 }

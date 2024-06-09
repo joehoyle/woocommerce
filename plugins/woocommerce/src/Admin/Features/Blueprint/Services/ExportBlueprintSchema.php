@@ -6,9 +6,9 @@ class ExportBlueprintSchema {
 	protected array $default_exporters = array(
 //      ExportPluginList::class,
 //		ExportThemeList::class,
-		ExportCoreProfilerSettings::class,
-		ExportTaxRates::class,
-		ExportShipping::class,
+//		ExportCoreProfilerSettings::class,
+//		ExportTaxRates::class,
+//		ExportShipping::class,
 		ExportSettings::class,
 		ExportPaymentGateways::class,
 	);

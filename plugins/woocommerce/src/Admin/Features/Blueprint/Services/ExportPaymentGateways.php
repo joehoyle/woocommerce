@@ -19,7 +19,7 @@ class ExportPaymentGateways implements ExportsBlueprintStep {
 
 	public function export_as_step_configuration() {
 		return array(
-			'step' => 'configurePaymentMethods',
+			'step' => 'configurePaymentGateways',
 			'payment_gateways' => $this->export()
 		);
 	}

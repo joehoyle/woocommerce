@@ -36,6 +36,10 @@ class StepProcessorResult {
 		$this->step_name = $step_name;
 	}
 
+	public function set_step_name($step_name) {
+	    $this->step_name = $step_name;
+	}
+
 	/**
 	 * Create a new instance with $success = true.
 	 *
