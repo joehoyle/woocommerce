@@ -2,7 +2,7 @@
 
 namespace Automattic\WooCommerce\Admin\Features\Blueprint\Exporters;
 
-class CoreProfilerSettingsExporter implements Exporter {
+class ExportCoreProfilerSettings implements ExportsStepSchema {
 	public function export() {
 		$onboarding_profile = get_option('woocommerce_onboarding_profile', array());
 	    return array(
@@ -13,10 +13,14 @@ class CoreProfilerSettingsExporter implements Exporter {
 			"store_email"=> $onboarding_profile['store_email'] ?? ''
 	    );
 	}
-	public function export_as_step_configuration() {
+	public function export_step_schema() {
 		return array(
-			'step' => 'configureCoreProfiler',
+			'step' => $this->get_step_name(),
 			'values' => $this->export()
 		);
+	}
+
+	public function get_step_name() {
+		return 'configureCoreProfiler';
 	}
 }

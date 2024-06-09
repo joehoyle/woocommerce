@@ -10,8 +10,8 @@ class ExportCli {
 		$this->save_to = $save_to;
 	}
 
-	public function run() {
-		$schema = (new ExportSchema())->export();
+	public function run($steps = array()) {
+		$schema = (new ExportSchema())->export($steps);
 		file_put_contents($this->save_to, json_encode($schema, JSON_PRETTY_PRINT));
 		\WP_CLI::success("Exported to {$this->save_to}");
 	}

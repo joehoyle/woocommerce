@@ -2,10 +2,11 @@
 
 namespace Automattic\WooCommerce\Admin\Features\Blueprint\Exporters;
 
+use Automattic\WooCommerce\Admin\Features\Blueprint\Util;
 use WC_Admin_Settings;
 use WC_Settings_Page;
 
-class SettingsExporter implements Exporter {
+class ExportSettings implements ExportsStepSchema {
 	/**
 	 * @var WC_Settings_Page[]
 	 */
@@ -89,14 +90,6 @@ class SettingsExporter implements Exporter {
 		return $info;
 	 }
 
-
-	public function export_as_step_configuration() {
-	    return array(
-			'step' => 'configureSettings',
-		    'values' => $this->export()
-		);
-	}
-
 	private function get_page_section_settings($settings, $page, $section = '') {
 		$current_title = '';
 		$data = array();
@@ -149,5 +142,16 @@ class SettingsExporter implements Exporter {
 		);
 
 		return $export_data;
+	}
+
+	public function export_step_schema() {
+		return array(
+			'step' => $this->get_step_name(),
+			'values' => $this->export()
+		);
+	}
+
+	public function get_step_name() {
+	    return 'configureSettings';
 	}
 }

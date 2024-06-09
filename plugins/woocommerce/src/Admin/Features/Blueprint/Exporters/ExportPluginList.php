@@ -2,7 +2,7 @@
 
 namespace Automattic\WooCommerce\Admin\Features\Blueprint\Exporters;
 
-class PluginListExporter implements Exporter {
+class ExportPluginList implements ExportsStepSchema {
 	public function export() {
 		if (!function_exists('is_plugin_active') || !function_exists('get_plugins')) {
 			require_once ABSPATH . 'wp-admin/includes/plugin.php';
@@ -35,10 +35,14 @@ class PluginListExporter implements Exporter {
 	    return $export;
 	}
 
-	public function export_as_step_configuration() {
+	public function export_step_schema() {
 		return array(
-			'step' => 'installPlugins',
+			'step' => $this->get_step_name(),
 			'plugins' => $this->export()
 		);
+	}
+
+	public function get_step_name() {
+		return 'installPlugins';
 	}
 }

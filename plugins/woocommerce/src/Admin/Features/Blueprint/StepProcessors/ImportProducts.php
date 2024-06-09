@@ -75,6 +75,6 @@ class ImportProducts implements StepProcessor {
 			$this->cleanup();
 		}
 		// @todo check for errors.
-		return StepProcessorResult::success(self::class);
+		return StepProcessorResult::success('ImportProducts');
 	}
 }

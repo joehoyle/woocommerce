@@ -598,10 +598,13 @@ class Loader {
 	}
 
 	public static function maybe_configure_with_blueprint() {
-		$path = constant( 'WOOCOMMERCE_BLUEPRINT_PATH' );
-		if ( true === constant( 'USE_WOOCOMMERCE_BLUEPRINT' ) && file_exists( $path ) ) {
+		$path = constant( 'WOO_BLUEPRINT_PATH' );
+		$first_import = get_option('wooblueprint_imported_on_activation', 'no');
+		if ( true === constant( 'USE_WOO_BLUEPRINT' ) && file_exists( $path )  && $first_import) {
 			$blueprint = new ImportSchema( $path );
 			$blueprint->process();
+			// @todo -- process any errors
+			update_option('wooblueprint_imported_on_activation', 'yes');
 		}
 	}
 }

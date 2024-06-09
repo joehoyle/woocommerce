@@ -35,13 +35,24 @@ class Cli {
 
 		\WP_CLI::add_command( 'wc blueprint export', function($args, $assoc_args) {
 			$import = new ExportCli($args[0]);
-			$import->run();
+			$steps = array();
+			if (isset($assoc_args['steps'])) {
+				$steps = array_map(function($step) {
+					return trim($step);
+				}, explode(',', $assoc_args['steps']));
+			}
+			$import->run($steps);
 		}, array(
 			'synopsis' => [
 				[
 					'type' => 'positional',
 					'name' => 'save-to',
 					'optional' => false,
+				],
+				[
+					'type' => 'assoc',
+					'name' => 'steps',
+					'optional' => true,
 				],
 			],
 			'when' => 'after_wp_load',

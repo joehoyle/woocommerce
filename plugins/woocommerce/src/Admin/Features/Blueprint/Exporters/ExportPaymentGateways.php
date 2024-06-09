@@ -2,7 +2,7 @@
 
 namespace Automattic\WooCommerce\Admin\Features\Blueprint\Exporters;
 
-class PaymentGatewaysExporter implements Exporter {
+class ExportPaymentGateways implements ExportsStepSchema {
 
 	public function export() {
 		$payment_gateways = array();
@@ -17,10 +17,14 @@ class PaymentGatewaysExporter implements Exporter {
 		return $payment_gateways;
 	}
 
-	public function export_as_step_configuration() {
+	public function export_step_schema() {
 		return array(
-			'step' => 'configurePaymentGateways',
+			'step' => $this->get_step_name(),
 			'payment_gateways' => $this->export()
 		);
+	}
+
+	public function get_step_name() {
+		return 'configurePaymentGateways';
 	}
 }

@@ -2,7 +2,7 @@
 
 namespace Automattic\WooCommerce\Admin\Features\Blueprint\Exporters;
 
-class TaxRatesExporter implements Exporter {
+class ExportTaxRates implements ExportsStepSchema {
 
 	public function export() {
 		global $wpdb;
@@ -16,10 +16,14 @@ class TaxRatesExporter implements Exporter {
 		return $rates;
 	}
 
-	public function export_as_step_configuration() {
+	public function export_step_schema() {
 		return array(
-			'step' => 'configureTaxRates',
+			'step' => $this->get_step_name(),
 			'rates' => $this->export()
 		);
+	}
+
+	public function get_step_name() {
+	    return 'configureTaxRates';
 	}
 }

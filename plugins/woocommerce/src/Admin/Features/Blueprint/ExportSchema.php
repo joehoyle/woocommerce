@@ -2,38 +2,58 @@
 
 namespace Automattic\WooCommerce\Admin\Features\Blueprint;
 
-use Automattic\WooCommerce\Admin\Features\Blueprint\Exporters\Exporter;
+use Automattic\WooCommerce\Admin\Features\Blueprint\Exporters\ExportCoreProfilerSettings;
+use Automattic\WooCommerce\Admin\Features\Blueprint\Exporters\ExportPaymentGateways;
+use Automattic\WooCommerce\Admin\Features\Blueprint\Exporters\ExportPluginList;
+use Automattic\WooCommerce\Admin\Features\Blueprint\Exporters\ExportSettings;
+use Automattic\WooCommerce\Admin\Features\Blueprint\Exporters\ExportShipping;
+use Automattic\WooCommerce\Admin\Features\Blueprint\Exporters\ExportsStepSchema;
+use Automattic\WooCommerce\Admin\Features\Blueprint\Exporters\ExportTaxRates;
+use Automattic\WooCommerce\Admin\Features\Blueprint\Exporters\ExportThemeList;
 
 class ExportSchema {
-	protected array $default_exporters = array(
-        PluginListExporter::class,
-		ThemeListExporter::class,
-		CoreProfilerSettingsExporter::class,
-		TaxRatesExporter::class,
-		ShippingExporter::class,
-		SettingsExporter::class,
-		PaymentGatewaysExporter::class,
+	protected array $default_exporter_classes = array(
+        ExportPluginList::class,
+		ExportThemeList::class,
+		ExportCoreProfilerSettings::class,
+		ExportTaxRates::class,
+		ExportShipping::class,
+		ExportSettings::class,
+		ExportPaymentGateways::class,
 	);
 
-	protected array $additional_exporters = array();
+	protected array $exporters = array();
 
-	public function add_exporter(Exporter $exporter) {
-	    $this->additional_exporters[] = $exporter;
+	public function add_exporter(ExportsStepSchema $exporter) {
+	    $this->exporters[$exporter->get_step_name()] = $exporter;
 	}
 
-	public function export() {
+	public function __construct($exporters = array()) {
+	    if (count($exporters) === 0) {
+			$this->add_default_exporters();
+	    }
+	}
+
+	public function export($steps = array()) {
 		$schema = array(
 			'steps' => array(),
 		);
-		$exporters = array_map(function($exporter_class) {
-			return new $exporter_class;
-		}, $this->default_exporters);
 
-		$exporters = array_merge($exporters, $this->additional_exporters);
+		if (count($steps)) {
+			$exporters = array_intersect_key($this->exporters, array_flip($steps));
+		} else {
+			$exporters = $this->exporters;
+		}
 
 		foreach ($exporters as $exporter) {
-			$schema['steps'][] = $exporter->export_as_step_configuration();
+			$schema['steps'][] = $exporter->export_step_schema();
 		}
 		return $schema;
+	}
+
+	protected function add_default_exporters() {
+		foreach ($this->default_exporter_classes as $exporter) {
+			$this->add_exporter(new $exporter);
+		}
 	}
 }
