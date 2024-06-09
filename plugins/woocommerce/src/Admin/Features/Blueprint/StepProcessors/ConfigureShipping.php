@@ -31,8 +31,13 @@ class ConfigureShipping implements StepProcessor {
 	protected function insert($table, $format, $rows) {
 		global $wpdb;
 		$inserted_ids = array();
+		$table = $wpdb->prefix.$table;
+		$format = implode(', ', $format);
 		foreach ($rows as $row) {
-			$inserted_ids[] = $wpdb->insert($wpdb->prefix.$table, (array) $row, $format);
+			$row = (array) $row;
+			$columns = implode(", ", array_keys($row));
+			$sql = $wpdb->prepare("REPLACE INTO $table ($columns) VALUES ($format)", $row);
+			$result = $wpdb->query($sql);
 		}
 		return $inserted_ids;
 	}
