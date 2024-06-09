@@ -2,6 +2,8 @@
 
 namespace Automattic\WooCommerce\Admin\Features\Blueprint;
 
+use Automattic\WooCommerce\Admin\Features\Blueprint\Exporters\Exporter;
+
 class ExportSchema {
 	protected array $default_exporters = array(
         PluginListExporter::class,

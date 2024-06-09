@@ -1,6 +1,6 @@
 <?php
 
-namespace Automattic\WooCommerce\Admin\Features\Blueprint;
+namespace Automattic\WooCommerce\Admin\Features\Blueprint\Exporters;
 
 class CoreProfilerSettingsExporter implements Exporter {
 	public function export() {

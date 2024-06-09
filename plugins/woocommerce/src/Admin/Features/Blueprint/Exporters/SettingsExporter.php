@@ -1,6 +1,6 @@
 <?php
 
-namespace Automattic\WooCommerce\Admin\Features\Blueprint;
+namespace Automattic\WooCommerce\Admin\Features\Blueprint\Exporters;
 
 use WC_Admin_Settings;
 use WC_Settings_Page;

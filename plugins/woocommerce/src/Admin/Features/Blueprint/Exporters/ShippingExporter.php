@@ -1,7 +1,6 @@
 <?php
 
-namespace Automattic\WooCommerce\Admin\Features\Blueprint;
-
+namespace Automattic\WooCommerce\Admin\Features\Blueprint\Exporters;
 
 class ShippingExporter implements Exporter {
 	public function export() {
